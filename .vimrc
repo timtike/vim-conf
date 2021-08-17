@@ -1,8 +1,6 @@
 set number
 set autoindent
 syntax on
-" vim theme
-colorscheme hybrid
 " 高亮搜索
 set hlsearch
 " 增量搜索
