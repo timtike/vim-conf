@@ -59,7 +59,12 @@ def lambda_handler(event, context):
     batch = boto3.resource('batch')
     jobs_response = batch.describe_jobs(jobs=[job_id,])
     # TODO:error process
-    job_status = jobs_response['jobs'][0]['status']
+    #job_status = jobs_response['jobs'][0]['status']
+    jobs = jobs_response['jobs']
+    if jobs:
+        job_status = jobs_response['jobs'][0]['status']
+    else:
+        job_status = ''
         
     # 2.update dynamodb
     # get job status from db
@@ -80,7 +85,7 @@ def lambda_handler(event, context):
             'job_id': job_id,
             'job_status': job_status,
             # when autoconfig runs, it will update the status_code and message
-            'status_code': 0,
+            'status_code': 1,
             'status_message': ''
             }
         
@@ -88,7 +93,10 @@ def lambda_handler(event, context):
 
     # 3.get job info from db
     resp = table.get_item(Key={'job_id': job_id})
-    return {"statusCode": 200, "body": json.dumps(resp['Item'])}
+    job_info = resp['Item']
+    job_info['status_code'] = int(job_info['status_code'])
+    
+    return {"statusCode": 200, "body": json.dumps(job_info)}
 
 
 ```
